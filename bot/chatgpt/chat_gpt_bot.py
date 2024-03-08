@@ -44,6 +44,9 @@ class ChatGPTBot(Bot, OpenAIImage):
         }
 
     def reply(self, query, context=None):
+        use_gpt_4 = '{gpt4}' in query
+        query = query.replace('{gpt4}', '')
+
         # acquire reply content
         if context.type == ContextType.TEXT:
             logger.info("[CHATGPT] query={}".format(query))
@@ -75,7 +78,7 @@ class ChatGPTBot(Bot, OpenAIImage):
             #     # reply in stream
             #     return self.reply_text_stream(query, new_query, session_id)
 
-            reply_content = self.reply_text(session, api_key, args=new_args)
+            reply_content = self.reply_text(session, api_key, args=new_args, use_gpt_4=use_gpt_4)
             logger.debug(
                 "[CHATGPT] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
                     session.messages,
@@ -88,7 +91,7 @@ class ChatGPTBot(Bot, OpenAIImage):
                 reply = Reply(ReplyType.ERROR, reply_content["content"])
             elif reply_content["completion_tokens"] > 0:
                 self.sessions.session_reply(reply_content["content"], session_id, reply_content["total_tokens"])
-                reply = Reply(ReplyType.TEXT, reply_content["content"])
+                reply = Reply(ReplyType.TEXT, reply_content["content"], reply_content)
             else:
                 reply = Reply(ReplyType.ERROR, reply_content["content"])
                 logger.debug("[CHATGPT] reply {} used 0 tokens.".format(reply_content))
@@ -106,7 +109,7 @@ class ChatGPTBot(Bot, OpenAIImage):
             reply = Reply(ReplyType.ERROR, "Bot不支持处理{}类型的消息".format(context.type))
             return reply
 
-    def reply_text(self, session: ChatGPTSession, api_key=None, args=None, retry_count=0) -> dict:
+    def reply_text(self, session: ChatGPTSession, api_key=None, args=None, retry_count=0, use_gpt_4=False) -> dict:
         """
         call openai's ChatCompletion to get the answer
         :param session: a conversation session
@@ -120,13 +123,22 @@ class ChatGPTBot(Bot, OpenAIImage):
             # if api_key == None, the default openai.api_key will be used
             if args is None:
                 args = self.args
-            response = openai.ChatCompletion.create(api_key=api_key, messages=session.messages, **args)
+
+            new_args = args.copy()
+            if use_gpt_4:
+                # gpt-4-turbo-preview, gpt-4-1106-preview
+                new_args['model'] = 'gpt-4-turbo-preview'
+
+            response = openai.ChatCompletion.create(api_key=api_key, messages=session.messages, **new_args)
             # logger.debug("[CHATGPT] response={}".format(response))
             # logger.info("[ChatGPT] reply={}, total_tokens={}".format(response.choices[0]['message']['content'], response["usage"]["total_tokens"]))
             return {
                 "total_tokens": response["usage"]["total_tokens"],
                 "completion_tokens": response["usage"]["completion_tokens"],
                 "content": response.choices[0]["message"]["content"],
+                'prompt_tokens': response['usage']['prompt_tokens'],
+                'model': response['model'],
+                'unix_timestamp': response['created'],
             }
         except Exception as e:
             need_retry = retry_count < 2
