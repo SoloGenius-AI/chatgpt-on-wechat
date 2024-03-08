@@ -63,6 +63,15 @@ class ChatGPTBot(Bot, OpenAIImage):
             elif query == "#更新配置":
                 load_config()
                 reply = Reply(ReplyType.INFO, "配置已更新")
+            elif '#更新配置' in query:
+                try:
+                    config_name = query.split(' ')[-1]
+                    load_config(f'./{config_name}.json')
+                    reply = Reply(ReplyType.INFO, "配置更新为config_name")
+                except Exception as _:
+                    load_config()
+                    reply = Reply(ReplyType.INFO, "配置更新为default")
+
             if reply:
                 return reply
             session = self.sessions.session_query(query, session_id)

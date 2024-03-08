@@ -80,6 +80,10 @@ ADMIN_COMMANDS = {
         "alias": ["reconf", "重载配置"],
         "desc": "重载配置(不包含插件配置)",
     },
+    "loconf": {
+        "alias": ["loconf", "加载配置"],
+        "desc": "加载配置(不包含插件配置)",
+    },
     "resetall": {
         "alias": ["resetall", "重置所有会话"],
         "desc": "重置所有会话",
@@ -336,6 +340,9 @@ class Godcmd(Plugin):
                             ok, result = True, "服务已恢复"
                         elif cmd == "reconf":
                             load_config()
+                            ok, result = True, "配置已重载"
+                        elif cmd == "loconf":
+                            load_config(f'./{args[0]}.json')
                             ok, result = True, "配置已重载"
                         elif cmd == "resetall":
                             if bottype in [const.OPEN_AI, const.CHATGPT, const.CHATGPTONAZURE, const.LINKAI,
