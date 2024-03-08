@@ -81,71 +81,75 @@ class logpp(Plugin):
         return datetime.now().strftime("%d-%H:%M:%S")
 
     def on_decorate_reply(self, e_context: EventContext):
+        try:
+            if e_context["context"].type not in [
+                ContextType.TEXT,
+                ContextType.IMAGE
+            ]:
+                return
 
-        if e_context["context"].type not in [
-            ContextType.TEXT,
-            ContextType.IMAGE
-        ]:
-            return
+            if e_context["reply"].type not in [
+                ReplyType.TEXT,
+                ReplyType.IMAGE
+            ]:
+                return
 
-        if e_context["reply"].type not in [
-            ReplyType.TEXT,
-            ReplyType.IMAGE
-        ]:
-            return
+            content = e_context['context'].content
+            is_group = e_context['context'].kwargs['msg'].is_group  # certain group
+            group = e_context['context'].kwargs['msg'].other_user_nickname
+            if is_group:
+                user = e_context['context'].kwargs['msg'].actual_user_nickname
+            else:
+                user = e_context['context'].kwargs['msg'].from_user_nickname
+            reply = e_context['reply']
+            addition_info = reply.addition_info
+            model_name = addition_info['model']
+            total_tokens = addition_info['total_tokens']
+            prompt_tokens = addition_info['prompt_tokens']
+            completion_tokens = addition_info['completion_tokens']
 
-        content = e_context['context'].content
-        is_group = e_context['context'].kwargs['msg'].is_group  # certain group
-        group = e_context['context'].kwargs['msg'].other_user_nickname
-        if is_group:
-            user = e_context['context'].kwargs['msg'].actual_user_nickname
-        else:
-            user = e_context['context'].kwargs['msg'].from_user_nickname
-        reply = e_context['reply']
-        addition_info = reply.addition_info
-        model_name = addition_info['model']
-        total_tokens = addition_info['total_tokens']
-        prompt_tokens = addition_info['prompt_tokens']
-        completion_tokens = addition_info['completion_tokens']
+            if e_context["context"].type == ContextType.TEXT:
+                # "时间", "用户名", "群聊", "输入token数", "输出token数", "实际请求内容", "输出内容"
+                if reply.type == ReplyType.TEXT:
+                    if is_group:
+                        add_row_to_csv(self.csv, self.now, user, group, num_tokens_from_string(content, self.encoding),
+                                       num_tokens_from_string(reply.content, self.encoding), content, reply.content,
+                                       model_name)
+                        add_row_to_csv(self.new_csv, self.new_now, user, group, prompt_tokens, completion_tokens,
+                                       content,
+                                       reply.content, model_name)
+                    else:
+                        add_row_to_csv(self.csv, self.now, user, "", num_tokens_from_string(content, self.encoding),
+                                       num_tokens_from_string(reply.content, self.encoding), content, reply.content,
+                                       model_name)
+                        add_row_to_csv(self.new_csv, self.new_now, user, "", prompt_tokens, completion_tokens,
+                                       content, reply.content, model_name)
+                elif reply.type == ReplyType.IMAGE:
+                    if is_group:
+                        add_row_to_csv(self.csv, self.now, user, group, num_tokens_from_string(content, self.encoding),
+                                       0,
+                                       content, "image")
+                    else:
+                        add_row_to_csv(self.csv, self.now, user, "", num_tokens_from_string(content, self.encoding), 0,
+                                       content, "image")
+                return
 
-        if e_context["context"].type == ContextType.TEXT:
-            # "时间", "用户名", "群聊", "输入token数", "输出token数", "实际请求内容", "输出内容"
-            if reply.type == ReplyType.TEXT:
-                if is_group:
-                    add_row_to_csv(self.csv, self.now, user, group, num_tokens_from_string(content, self.encoding),
-                                   num_tokens_from_string(reply.content, self.encoding), content, reply.content,
-                                   model_name)
-                    add_row_to_csv(self.new_csv, self.new_now, user, group, prompt_tokens, completion_tokens, content,
-                                   reply.content, model_name)
-                else:
-                    add_row_to_csv(self.csv, self.now, user, "", num_tokens_from_string(content, self.encoding),
-                                   num_tokens_from_string(reply.content, self.encoding), content, reply.content,
-                                   model_name)
-                    add_row_to_csv(self.new_csv, self.new_now, user, "", prompt_tokens, completion_tokens,
-                                   content, reply.content, model_name)
-            elif reply.type == ReplyType.IMAGE:
-                if is_group:
-                    add_row_to_csv(self.csv, self.now, user, group, num_tokens_from_string(content, self.encoding), 0,
-                                   content, "image")
-                else:
-                    add_row_to_csv(self.csv, self.now, user, "", num_tokens_from_string(content, self.encoding), 0,
-                                   content, "image")
-            return
-
-        if e_context["context"].type == ContextType.IMAGE:
-            if reply.type == ReplyType.TEXT:
-                if is_group:
-                    add_row_to_csv(self.csv, self.now, user, group, 0,
-                                   num_tokens_from_string(reply.content, self.encoding), "image", reply.content)
-                else:
-                    add_row_to_csv(self.csv, self.now, user, "", 0,
-                                   num_tokens_from_string(reply.content, self.encoding), "image", reply.content)
-            elif reply.type == ReplyType.IMAGE:
-                if is_group:
-                    add_row_to_csv(self.csv, self.now, user, group, 0, 0, "image", "image")
-                else:
-                    add_row_to_csv(self.csv, self.now, user, "", 0, 0, "image", "image")
-            return
+            if e_context["context"].type == ContextType.IMAGE:
+                if reply.type == ReplyType.TEXT:
+                    if is_group:
+                        add_row_to_csv(self.csv, self.now, user, group, 0,
+                                       num_tokens_from_string(reply.content, self.encoding), "image", reply.content)
+                    else:
+                        add_row_to_csv(self.csv, self.now, user, "", 0,
+                                       num_tokens_from_string(reply.content, self.encoding), "image", reply.content)
+                elif reply.type == ReplyType.IMAGE:
+                    if is_group:
+                        add_row_to_csv(self.csv, self.now, user, group, 0, 0, "image", "image")
+                    else:
+                        add_row_to_csv(self.csv, self.now, user, "", 0, 0, "image", "image")
+                return
+        except Exception as e_:
+            logger.error(f'记录token时错误: {e_}')
 
     def get_help_text(self, **kwargs):
         help_text = f"后台统计用户请求与回复token数\n"
