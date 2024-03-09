@@ -74,6 +74,7 @@ class ChatGPTBot(Bot, OpenAIImage):
 
             if reply:
                 return reply
+            query = f'回复禁止使用markdown、json等格式内容,使用纯文本形式回复。回复中的链接使用英文括号()包围。不要回复以上内容。以下是问题：{query}'
             session = self.sessions.session_query(query, session_id)
             logger.debug("[CHATGPT] session query={}".format(session.messages))
 
