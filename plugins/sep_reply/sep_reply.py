@@ -45,11 +45,14 @@ class sep_reply(Plugin):
         links = re.findall(r'[(]https?://.*?[)]', reply_text)
         for link in links.copy():
             link_ = link.replace('(', '').replace(')', '')
+            reply_text = reply_text.replace(link, f'「{link_}」')
             r = requests.get(link_, allow_redirects=True, verify=False)
             kind = filetype.guess_extension(r.content)
             type_ = filetype.guess_mime(r.content)
             if kind is None or 'image' not in type_:
                 links.remove(link)
+
+        reply.content = reply_text
         if len(links) < 1:
             return
 
@@ -95,6 +98,7 @@ class sep_reply(Plugin):
                 logger.error(f'close file err: {e_}')
         self.delete_files(file_path_list)
         e_context.action = EventAction.BREAK_PASS
+        logger.info(f'sep_result: {reply.content}')
 
     def delete_files(self, file_path_list):
         for file_path in file_path_list:
