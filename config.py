@@ -158,6 +158,7 @@ available_setting = {
     "linkai_api_key": "",
     "linkai_app_code": "",
     "linkai_api_base": "https://api.link-ai.chat",  # linkAI服务地址，若国内无法访问或延迟较高可改为 https://api.link-ai.tech
+    "linkai_model": "linkai-3.5-turbo",  # linkai-3.5-turbo, linkai-3.5-turbo-16k, linkai-4-turbo, wenxin, xunfei, wenxin-4, gemini, glm-4
 }
 
 
