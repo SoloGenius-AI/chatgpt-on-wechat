@@ -53,6 +53,7 @@ class sep_reply(Plugin):
                 links.remove(link)
 
         reply.content = reply_text.strip()
+        links = list(map(lambda x_: x_.replace('(', '「').replace(')', '」'), links))
         if len(links) < 1:
             return
 
@@ -67,7 +68,7 @@ class sep_reply(Plugin):
                 reply_list.append(Reply(ReplyType.TEXT, content=reply_text[st_idx: ed_inx]))
             st_idx = ed_inx
 
-            link = link.replace('(', '').replace(')', '')
+            link = link.replace('「', '').replace('」', '')
             r = requests.get(link, allow_redirects=True, verify=False)
             kind = filetype.guess_extension(r.content)
             type_ = filetype.guess_mime(r.content)
