@@ -40,7 +40,7 @@ class sep_reply(Plugin):
         logger.info(f'wait for sep str: {reply_text}')
         reply_text = re.sub(r'`+.*\n*.*\n*`+\n+', '', reply_text)
         reply_text = re.sub(r'\n+', '\n\n', reply_text)
-        reply.content = reply_text
+        reply.content = reply_text.strip()
 
         links = re.findall(r'[(]https?://.*?[)]', reply_text)
         for link in links.copy():
@@ -52,7 +52,7 @@ class sep_reply(Plugin):
             if kind is None or 'image' not in type_:
                 links.remove(link)
 
-        reply.content = reply_text
+        reply.content = reply_text.strip()
         if len(links) < 1:
             return
 
