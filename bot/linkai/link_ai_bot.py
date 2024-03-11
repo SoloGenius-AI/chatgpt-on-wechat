@@ -78,7 +78,7 @@ class LinkAIBot(Bot):
                 if messages:
                     session_message = messages
 
-            model = conf().get("linkai_model", "linkai-3.5-turbo")
+            model = conf().get("linkai_model", "linkai-3.5")
             # remove system message
             if session_message[0].get("role") == "system":
                 if app_code or model == "wenxin":
