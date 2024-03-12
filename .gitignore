@@ -32,4 +32,4 @@ plugins/banwords/lib/__pycache__
 !plugins/linkai
 client_config.json
 !plugins/sep_reply
-!plugins/timetask
+plugins/timetask
