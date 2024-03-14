@@ -43,13 +43,22 @@ class sep_reply(Plugin):
         reply.content = reply_text.strip()
 
         links = re.findall(r'[(]https?://.*?[)]', reply_text)
+        links_content_dict = {}
         for link in links.copy():
             link_ = link.replace('(', '').replace(')', '')
             reply_text = reply_text.replace(link, f'「{link_}」')
-            r = requests.get(link_, allow_redirects=True, verify=False)
-            kind = filetype.guess_extension(r.content)
-            type_ = filetype.guess_mime(r.content)
-            if kind is None or 'image' not in type_:
+            try:
+                r = requests.get(link_, allow_redirects=True, verify=False)
+                kind = filetype.guess_extension(r.content)
+                type_ = filetype.guess_mime(r.content)
+                if kind is None or 'image' not in type_:
+                    logger.warning(f'移除不能识别的URL: {link_}')
+                    links.remove(link)
+                else:
+                    links_content_dict[link_] = r
+                    logger.info(f'识别类型为: {type_}, 保留URL: {link_}')
+            except Exception as e_:
+                logger.warning(f'移除识别异常的URL: {link_}, err: {e_}')
                 links.remove(link)
 
         reply.content = reply_text.strip()
@@ -69,7 +78,8 @@ class sep_reply(Plugin):
             st_idx = ed_inx
 
             link = link.replace('「', '').replace('」', '')
-            r = requests.get(link, allow_redirects=True, verify=False)
+            # r = requests.get(link, allow_redirects=True, verify=False)
+            r = links_content_dict[link]
             kind = filetype.guess_extension(r.content)
             type_ = filetype.guess_mime(r.content)
             if kind is None:
