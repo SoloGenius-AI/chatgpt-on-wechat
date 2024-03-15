@@ -51,7 +51,7 @@ class sep_reply(Plugin):
                 r = requests.get(link_, allow_redirects=True, verify=False)
                 kind = filetype.guess_extension(r.content)
                 type_ = filetype.guess_mime(r.content)
-                if kind is None or 'image' not in type_:
+                if kind is None:
                     logger.warning(f'移除不能识别的URL: {link_}')
                     links.remove(link)
                 else:
@@ -61,7 +61,8 @@ class sep_reply(Plugin):
                 logger.warning(f'移除识别异常的URL: {link_}, err: {e_}')
                 links.remove(link)
 
-        reply.content = reply_text.strip()
+        reply_text = reply_text.strip()
+        reply.content = reply_text
         links = list(map(lambda x_: x_.replace('(', '「').replace(')', '」'), links))
         if len(links) < 1:
             return
