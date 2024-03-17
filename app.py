@@ -2,6 +2,7 @@
 
 import os
 import signal
+import subprocess
 import sys
 import time
 
@@ -67,5 +68,13 @@ def run():
         logger.exception(e)
 
 
+def git_pull():
+    try:
+        logger.info(subprocess.run('git pull', capture_output=True, timeout=60).stdout)
+    except Exception as e_:
+        logger.error(f'git失败: {e_}')
+
+
 if __name__ == "__main__":
+    git_pull()
     run()
