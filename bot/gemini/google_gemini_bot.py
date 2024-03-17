@@ -24,7 +24,7 @@ class GoogleGeminiBot(Bot):
         self.api_key = conf().get("gemini_api_key")
         self.model = conf().get("model") or "gemini-pro"
         # 复用文心的token计算方式
-        self.sessions = SessionManager(BaiduWenxinSession, "gpt-3.5-turbo")
+        self.sessions = SessionManager(BaiduWenxinSession, model="gpt-3.5-turbo")
 
     def reply(self, query, context: Context = None) -> Reply:
         try:
