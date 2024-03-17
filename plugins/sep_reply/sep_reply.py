@@ -10,6 +10,7 @@ from bridge.context import ContextType
 from bridge.reply import Reply, ReplyType
 from common.log import logger
 from plugins import *
+import magic
 
 
 @plugins.register(
@@ -30,6 +31,7 @@ class sep_reply(Plugin):
 
         self.handlers[Event.ON_SEND_REPLY] = self.on_send_reply  # 输出的部分
         logger.info("[sep_reply] inited")
+        self.magic_type_dict = {'text/plain': '文本'}
 
     def on_send_reply(self, e_context: EventContext):
         channel = e_context['channel']
@@ -51,12 +53,13 @@ class sep_reply(Plugin):
                 r = requests.get(link_, allow_redirects=True, verify=False)
                 kind = filetype.guess_extension(r.content)
                 type_ = filetype.guess_mime(r.content)
-                if kind is None:
+                magic_type_ = self.file_type(r.content)
+                if kind is None and magic_type_ is None:
                     logger.warning(f'移除不能识别的URL: {link_}')
                     links.remove(link)
                 else:
-                    links_content_dict[link_] = r
-                    logger.info(f'识别类型为: {type_}, 保留URL: {link_}')
+                    links_content_dict[link_] = {'r': r, 'kind': kind, 'type_': type_, 'magic_type_': magic_type_}
+                    logger.info(f'识别类型为: ({type_}+{magic_type_}), 保留URL: {link_}')
             except Exception as e_:
                 logger.warning(f'移除识别异常的URL: {link_}, err: {e_}')
                 links.remove(link)
@@ -80,13 +83,18 @@ class sep_reply(Plugin):
 
             link = link.replace('「', '').replace('」', '')
             # r = requests.get(link, allow_redirects=True, verify=False)
-            r = links_content_dict[link]
-            kind = filetype.guess_extension(r.content)
-            type_ = filetype.guess_mime(r.content)
-            if kind is None:
-                logger.error(f'Cannot guess file type!: {link}')
+            r = links_content_dict[link]['r']
+            kind = links_content_dict[link]['kind']
+            type_ = links_content_dict[link]['type_']
+            magic_type_ = links_content_dict[link]['magic_type_']
+            # kind = filetype.guess_extension(r.content)
+            # type_ = filetype.guess_mime(r.content)
+            # if kind is None:
+            #     logger.error(f'Cannot guess file type!: {link}')
 
-            file_path_ = f'{self.download_dir}/{random.random}.{kind}'
+            file_name = link.split('/')[-1].strip()
+            file_name = file_name if len(file_name) > 0 else f'{random.randint(0, 1000000000)}.{kind if kind is not None else magic_type_}'
+            file_path_ = f'{self.download_dir}/{file_name}'
             file_path_list.append(file_path_)
             with open(file_path_, 'wb') as f_:
                 f_.write(r.content)
@@ -107,7 +115,7 @@ class sep_reply(Plugin):
             try:
                 o_f.close()
             except Exception as e_:
-                logger.error(f'close file err: {e_}')
+                logger.error(f'关闭文件: {o_f}异常: {e_}')
         self.delete_files(file_path_list)
         e_context.action = EventAction.BREAK_PASS
         logger.info(f'sep_result: {reply.content}')
@@ -118,3 +126,7 @@ class sep_reply(Plugin):
                 os.remove(file_path)
             except Exception as e_:
                 logger.error(f'remove file err: {e_}')
+
+    def file_type(self, content):
+        mine_str = magic.from_buffer(content, mime=True)
+        return self.magic_type_dict.get(mine_str, None)
