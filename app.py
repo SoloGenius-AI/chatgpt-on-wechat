@@ -70,7 +70,8 @@ def run():
 
 def git_pull():
     try:
-        logger.info(subprocess.run('git pull', capture_output=True, timeout=60).stdout)
+        logger.info('开始git pull')
+        logger.info(subprocess.run(['git', 'pull'], capture_output=True, timeout=60).stdout.decode('utf-8'))
     except Exception as e_:
         logger.error(f'git失败: {e_}')
 
