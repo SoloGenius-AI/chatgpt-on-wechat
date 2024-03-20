@@ -11,5 +11,4 @@ filetype
 arrow>=1.2.3
 openpyxl>=3.1.2
 croniter>=1.4.1
-wework
 python-magic
