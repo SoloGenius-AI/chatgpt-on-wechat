@@ -344,8 +344,8 @@ class Godcmd(Plugin):
                         elif cmd == "loconf":
                             channel.cancel_all_session()
                             bot.sessions.clear_all_session()
-                            Bridge().reset_bot()
                             load_config(f'./{args[0]}.json')
+                            Bridge().reset_bot()
                             model = conf().get("model") or const.GPT35
                             logger.info(f'配置model: {model}')
                             ok, result = True, "配置已重载"

@@ -155,25 +155,25 @@ class MoonshotGPTBot(Bot, OpenAIImage):
             need_retry = retry_count < 2
             result = {"completion_tokens": 0, "content": "我现在有点累了，等会再来吧"}
             if isinstance(e, openai.error.RateLimitError):
-                logger.warn("[MOONSHOT] RateLimitError: {}".format(e))
+                logger.warn("[MOONSHOT] HTTP Status Code: {}, RateLimitError: {}".format(e.http_status, e))
                 result["content"] = "提问太快啦，请休息一下再问我吧"
                 if need_retry:
-                    time.sleep(20)
+                    time.sleep(4)
             elif isinstance(e, openai.error.Timeout):
                 logger.warn("[MOONSHOT] Timeout: {}".format(e))
                 result["content"] = "我没有收到你的消息"
                 if need_retry:
-                    time.sleep(5)
+                    time.sleep(3)
             elif isinstance(e, openai.error.APIError):
                 logger.warn("[MOONSHOT] Bad Gateway: {}".format(e))
                 result["content"] = "请再问我一次"
                 if need_retry:
-                    time.sleep(10)
+                    time.sleep(3)
             elif isinstance(e, openai.error.APIConnectionError):
                 logger.warn("[MOONSHOT] APIConnectionError: {}".format(e))
                 result["content"] = "我连接不到你的网络"
                 if need_retry:
-                    time.sleep(5)
+                    time.sleep(3)
             else:
                 logger.exception("[MOONSHOT] Exception: {}".format(e))
                 logger.exception(f"[MOONSHOT] session.messages: {session.messages}")
