@@ -161,6 +161,9 @@ available_setting = {
     "linkai_app_code": "",
     "linkai_api_base": "https://api.link-ai.chat",  # linkAI服务地址，若国内无法访问或延迟较高可改为 https://api.link-ai.tech
     "linkai_model": "linkai-3.5",  # gpt-3.5-turbo(linkai-3.5)、gpt-4(linkai-4)、gpt-4-turbo(linkai-4-turbo)、wenxin(文心一言)、wenxin-4(文心一言4.0)、xunfei(讯飞星火)、gemini
+
+    "moonshot_ai_api_key": "",
+    "moonshot_ai_api_base": ""
 }
 
 

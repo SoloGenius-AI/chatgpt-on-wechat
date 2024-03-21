@@ -56,5 +56,9 @@ def create_bot(bot_type):
         from bot.zhipuai.zhipuai_bot import ZHIPUAIBot
         return ZHIPUAIBot()
 
+    elif bot_type == const.MOONSHOT:
+        from bot.moonshot.moonshot_gpt_bot import MoonshotGPTBot
+        return MoonshotGPTBot()
+
 
     raise RuntimeError
