@@ -41,6 +41,7 @@ class sep_reply(Plugin):
         reply_text = reply.content
         logger.info(f'wait for sep str: {reply_text}')
         reply_text = re.sub(r'`+.*\n*.*\n*`+\n+', '', reply_text)
+        reply_text = re.sub(r'>\s*\*+\s*end-searching\*+', '', reply_text)
         reply_text = re.sub(r'\n+', '\n\n', reply_text)
         reply.content = reply_text.strip()
 
