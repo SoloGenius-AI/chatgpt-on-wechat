@@ -22,8 +22,8 @@ class GoogleGeminiBot(Bot):
     def __init__(self):
         super().__init__()
         self.api_key = conf().get("gemini_api_key")
-        self.model = conf().get("model") or "gemini-pro"
-        print(f"model: {self.model}")
+        self.model = conf().get("model") or "gemini-1.5-pro-latest"
+        logger.info(f"[Gemini] model: {self.model}")
         # 复用文心的token计算方式
         self.sessions = SessionManager(BaiduWenxinSession, model="gpt-3.5-turbo")
 
@@ -35,10 +35,10 @@ class GoogleGeminiBot(Bot):
             logger.info(f"[Gemini] query={query}")
             session_id = context["session_id"]
             session = self.sessions.session_query(query, session_id)
-            # gemini_messages = self._convert_to_gemini_messages(self.filter_messages(session.messages))
+            gemini_messages = self._convert_to_gemini_messages(self.filter_messages(session.messages))
             # genai.configure(api_key=self.api_key)
             # model = genai.GenerativeModel('gemini-pro')
-            gemini_messages = self._convert_to_gemini_messages(self._filter_messages(session.messages))
+            # gemini_messages = self._convert_to_gemini_messages(self._filter_messages(session.messages))
             genai.configure(api_key=self.api_key, transport='rest',
                 client_options={"api_endpoint": conf().get("gemini_api_base")})
             model = genai.GenerativeModel(self.model)
