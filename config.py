@@ -173,7 +173,12 @@ available_setting = {
 
     "dify_api_base": "https://api.dify.ai/v1",
     "dify_api_key": "",
-    "dify_app_type": "chatbot"
+    "dify_app_type": "chatbot",
+
+    "coze_api_base": "https://api.coze.cn/open_api/v2",
+    "coze_api_key": "",
+    "coze_bot_id": ""
+
 }
 
 
