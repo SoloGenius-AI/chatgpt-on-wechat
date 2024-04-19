@@ -170,6 +170,7 @@ available_setting = {
     "moonshot_ai_api_base": "",
     "moonshot_api_base": "",
     "moonshot_api_key": "",
+
     "dify_api_base": "https://api.dify.ai/v1",
     "dify_api_key": "",
     "dify_app_type": "chatbot"
