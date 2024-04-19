@@ -40,6 +40,8 @@ class Bridge(object):
             self.btype["chat"] = const.MOONSHOT
         if model_type and model_type.startswith("claude-3"):
             self.btype["chat"] = const.CLAUDEAPI
+        if model_type in [const.DIFY]:
+            self.btype["chat"] = const.DIFY
 
         if conf().get("use_linkai") and conf().get("linkai_api_key"):
             self.btype["chat"] = const.LINKAI

@@ -8,6 +8,7 @@ LINKAI = "linkai"
 CLAUDEAI = "claude"
 CLAUDEAPI= "claudeAPI"
 QWEN = "qwen"
+DIFY = "dify"
 
 QWEN_DASHSCOPE = "dashscope"
 QWEN_TURBO = "qwen-turbo"
@@ -32,7 +33,7 @@ TTS_1_HD = "tts-1-hd"
 MODEL_LIST = ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "wenxin", "wenxin-4", "xunfei", "claude",
               "claude-3-opus-20240229", "gpt-4-turbo", "gpt-4-turbo-preview", "gpt-4-1106-preview", GPT4_TURBO_PREVIEW,
               QWEN, GEMINI, ZHIPU_AI, MOONSHOT, QWEN_TURBO, QWEN_PLUS, QWEN_MAX, 'gpt-4-gizmo-g-qU2e3XUhS',
-              'gpt-4-gizmo-g-n0XGT6VQX']
+              'gpt-4-gizmo-g-n0XGT6VQX', DIFY]
 
 # channel
 FEISHU = "feishu"

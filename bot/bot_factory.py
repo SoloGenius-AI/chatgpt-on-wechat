@@ -65,5 +65,9 @@ def create_bot(bot_type):
         from bot.moonshot.moonshot_gpt_bot import MoonshotGPTBot
         return MoonshotGPTBot()
 
+    elif bot_type == const.DIFY:
+        from bot.dify.dify_bot import DifyBot
+        return DifyBot()
+
 
     raise RuntimeError
