@@ -61,9 +61,9 @@ def create_bot(bot_type):
         from bot.zhipuai.zhipuai_bot import ZHIPUAIBot
         return ZHIPUAIBot()
 
-    elif bot_type == const.MOONSHOT:
-        from bot.moonshot.moonshot_gpt_bot import MoonshotGPTBot
-        return MoonshotGPTBot()
+    # elif bot_type == const.MOONSHOT:
+    #     from bot.moonshot.moonshot_gpt_bot import MoonshotGPTBot
+    #     return MoonshotGPTBot()
 
     elif bot_type == const.DIFY:
         from bot.dify.dify_bot import DifyBot
@@ -72,6 +72,10 @@ def create_bot(bot_type):
     elif bot_type == const.COZE:
         from bot.bytedance.bytedance_coze_bot import ByteDanceCozeBot
         return ByteDanceCozeBot()
+
+    elif bot_type == const.MOONSHOT:
+        from bot.moonshot.moonshot_bot import MoonshotBot
+        return MoonshotBot()
 
 
     raise RuntimeError

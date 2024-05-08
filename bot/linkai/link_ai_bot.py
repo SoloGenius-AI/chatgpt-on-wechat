@@ -123,8 +123,7 @@ class LinkAIBot(Bot):
             headers = {"Authorization": "Bearer " + linkai_api_key}
 
             # do http request
-            base_url = conf().get("linkai_api_base", "https://api.link-ai.chat")
-            logger.info(f"[LINKAI] body={body}")
+            base_url = conf().get("linkai_api_base", "https://api.link-ai.tech")
             res = requests.post(url=base_url + "/v1/chat/completions", json=body, headers=headers,
                                 timeout=conf().get("request_timeout", 180))
             if res.status_code == 200:
@@ -263,7 +262,7 @@ class LinkAIBot(Bot):
             headers = {"Authorization": "Bearer " + conf().get("linkai_api_key")}
 
             # do http request
-            base_url = conf().get("linkai_api_base", "https://api.link-ai.chat")
+            base_url = conf().get("linkai_api_base", "https://api.link-ai.tech")
             res = requests.post(url=base_url + "/v1/chat/completions", json=body, headers=headers,
                                 timeout=conf().get("request_timeout", 180))
             if res.status_code == 200:
@@ -306,7 +305,7 @@ class LinkAIBot(Bot):
     def _fetch_app_info(self, app_code: str):
         headers = {"Authorization": "Bearer " + conf().get("linkai_api_key")}
         # do http request
-        base_url = conf().get("linkai_api_base", "https://api.link-ai.chat")
+        base_url = conf().get("linkai_api_base", "https://api.link-ai.tech")
         params = {"app_code": app_code}
         res = requests.get(url=base_url + "/v1/app/info", params=params, headers=headers, timeout=(5, 10))
         if res.status_code == 200:
@@ -328,7 +327,7 @@ class LinkAIBot(Bot):
                 "response_format": "url",
                 "img_proxy": conf().get("image_proxy")
             }
-            url = conf().get("linkai_api_base", "https://api.link-ai.chat") + "/v1/images/generations"
+            url = conf().get("linkai_api_base", "https://api.link-ai.tech") + "/v1/images/generations"
             res = requests.post(url, headers=headers, json=data, timeout=(5, 90))
             t2 = time.time()
             image_url = res.json()["data"][0]["url"]
