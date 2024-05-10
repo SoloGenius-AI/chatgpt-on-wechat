@@ -77,5 +77,6 @@ def git_pull():
 
 
 if __name__ == "__main__":
-    git_pull()
+    if not os.environ.get('local', False):
+        git_pull()
     run()

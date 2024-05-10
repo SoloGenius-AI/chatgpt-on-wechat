@@ -1,5 +1,6 @@
 # encoding:utf-8
 import json
+import os
 import threading
 
 import requests
@@ -11,16 +12,20 @@ from bridge.reply import Reply, ReplyType
 from common.log import logger
 from common import const
 from config import conf
+from common import memory
 
 
 class DifyBot(Bot):
     def __init__(self):
         super().__init__()
         self.sessions = DifySessionManager(DifySession, model=conf().get("model", const.DIFY))
+        self.ask_image = False
+        self.image_id = None
 
     def reply(self, query, context: Context = None):
         # acquire reply content
-        if context.type == ContextType.TEXT or context.type == ContextType.IMAGE_CREATE:
+        if (context.type == ContextType.TEXT or context.type == ContextType.IMAGE_CREATE or
+                (context.type == ContextType.IMAGE and conf().get('dify_enable_vision', False))):
             if context.type == ContextType.IMAGE_CREATE:
                 query = conf().get('image_create_prefix', ['画'])[0] + query
             logger.info("[DIFY] query={}".format(query))
@@ -70,7 +75,7 @@ class DifyBot(Bot):
             session.count_user_message()  # 限制一个conversation中消息数，防止conversation过长
             dify_app_type = conf().get('dify_app_type', 'chatbot')
             if dify_app_type == 'chatbot':
-                return self._handle_chatbot(query, session)
+                return self._handle_chatbot(query, session, context)
             elif dify_app_type == 'agent':
                 return self._handle_agent(query, session, context)
             elif dify_app_type == 'workflow':
@@ -83,15 +88,42 @@ class DifyBot(Bot):
             logger.exception(error_info)
             return None, error_info
 
-    def _handle_chatbot(self, query: str, session: DifySession):
+    def _handle_chatbot(self, query: str, session: DifySession, context: Context):
         # TODO: 获取response部分抽取为公共函数
         base_url = self._get_api_base_url()
         chat_url = f'{base_url}/chat-messages'
         headers = self._get_headers()
         response_mode = 'blocking'
         payload = self._get_payload(query, session, response_mode)
-        response = requests.post(chat_url, headers=headers, json=payload)
-        if response.status_code != 200:
+        if query == '开启对话' and not self.ask_image and self.image_id is not None:
+            self.ask_image = True
+            reply = Reply(ReplyType.TEXT, '开启成功，接下来可以进行图像对话了。输入「结束对话」以退出图像对话。')
+            return reply, None
+        elif query == '结束对话' and self.ask_image:
+            self.ask_image = False
+            reply = Reply(ReplyType.TEXT, '结束图像对话成功。')
+            session.set_conversation_id('')
+            return reply, None
+        elif context.type != ContextType.IMAGE:
+            if self.ask_image:
+                payload['inputs']['ask_image'] = 'true'
+                payload['files'] = [{'type': 'image', 'transfer_method': 'local_file', 'upload_file_id': self.image_id}]
+            else:
+                payload['inputs']['ask_image'] = 'false'
+            logger.info(f'[DIFY] send {payload=}')
+            response = requests.post(chat_url, headers=headers, json=payload)
+        else:
+            upload_url = f'{base_url}/files/upload'
+            payload_ = {'user': payload['user']}
+            context.get("msg").prepare()
+            file_path_ = context.content
+            file_name_ = context.content.split(os.sep)[-1]
+            # type=image/[png|jpeg|jpg|webp|gif]
+            type_ = 'image/{}'.format(file_path_.split('.')[-1].lower())
+            files = {'file': (file_name_, open(file_path_, 'rb'), type_)}
+            response = requests.post(upload_url, headers=headers, data=payload_, files=files)
+            os.remove(file_path_)
+        if response.status_code != 200 and response.status_code != 201:
             error_info = f"[DIFY] response text={response.text} status_code={response.status_code}"
             logger.warn(error_info)
             return None, error_info
@@ -114,7 +146,12 @@ class DifyBot(Bot):
         logger.debug("[DIFY] usage {}".format(rsp_data.get('metadata', {}).get('usage', 0)))
         # TODO: 处理返回的图片文件
         # {"answer": "![image](/files/tools/dbf9cd7c-2110-4383-9ba8-50d9fd1a4815.png?timestamp=1713970391&nonce=0d5badf2e39466042113a4ba9fd9bf83&sign=OVmdCxCEuEYwc9add3YNFFdUpn4VdFKgl84Cg54iLnU=)"}
-        reply = Reply(ReplyType.TEXT, rsp_data['answer'])
+        if context.type != ContextType.IMAGE:
+            reply = Reply(ReplyType.TEXT, rsp_data['answer'])
+        else:
+            self.image_id = rsp_data.get('id', None)
+            reply = Reply(ReplyType.TEXT, '图像读取成功，输入「开启对话」对图像进行相关对话，输入「结束对话」以退出。\n对话仅保留最近的一次的图像。')
+            return reply, None
         # 设置dify conversation_id, 依靠dify管理上下文
         if session.get_conversation_id() == '':
             session.set_conversation_id(rsp_data['conversation_id'])
