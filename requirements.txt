@@ -13,3 +13,4 @@ openpyxl>=3.1.2
 croniter>=1.4.1
 python-magic
 linkai>=0.0.6.0
+pillow
