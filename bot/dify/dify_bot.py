@@ -22,6 +22,8 @@ class DifyBot(Bot):
         self.sessions = DifySessionManager(DifySession, model=conf().get("model", const.DIFY))
         self.ask_image = False
         self.image_id = None
+        self.last_not_image_session_id = ''
+        self.last_image_session_id = ''
 
     def reply(self, query, context: Context = None):
         # acquire reply content
@@ -97,14 +99,16 @@ class DifyBot(Bot):
         response_mode = 'blocking'
         payload = self._get_payload(query, session, response_mode)
         if query == '开启对话' and not self.ask_image and self.image_id is not None:
-            session.set_conversation_id('')
+            self.last_not_image_session_id = session.get_session_id()
+            session.set_conversation_id(self.last_image_session_id)
             self.ask_image = True
             reply = Reply(ReplyType.TEXT, '开启成功，接下来可以进行图像对话了。输入「结束对话」以退出图像对话。')
             return reply, None
         elif query == '结束对话' and self.ask_image:
             self.ask_image = False
             reply = Reply(ReplyType.TEXT, '结束图像对话成功。')
-            session.set_conversation_id('')
+            self.last_image_session_id = session.get_session_id()
+            session.set_conversation_id(self.last_not_image_session_id)
             return reply, None
         elif context.type != ContextType.IMAGE:
             if self.ask_image:
