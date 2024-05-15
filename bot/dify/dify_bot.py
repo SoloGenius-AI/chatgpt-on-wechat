@@ -97,6 +97,7 @@ class DifyBot(Bot):
         response_mode = 'blocking'
         payload = self._get_payload(query, session, response_mode)
         if query == '开启对话' and not self.ask_image and self.image_id is not None:
+            session.set_conversation_id('')
             self.ask_image = True
             reply = Reply(ReplyType.TEXT, '开启成功，接下来可以进行图像对话了。输入「结束对话」以退出图像对话。')
             return reply, None
