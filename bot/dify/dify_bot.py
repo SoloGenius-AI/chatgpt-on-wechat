@@ -124,18 +124,25 @@ class DifyBot(Bot):
             context.get("msg").prepare()
             file_path_ = context.content
             save_file_path_ = f'{file_path_}.jpeg'
-            with Image.open(file_path_) as im:
-                # fsize = os.path.getsize(file_path_) / float(1024)
-                im.save(save_file_path_, quality=85, optimize=True)
+            try:
+                with Image.open(file_path_) as im:
+                    # fsize = os.path.getsize(file_path_) / float(1024)
+                    im.save(save_file_path_, quality=85, optimize=True)
+            except Exception as e_:
+                logger.error(f'[DIFY] 图片格式转换失败: {save_file_path_}, err: {e_}')
+                save_file_path_ = file_path_
 
             file_name_ = save_file_path_.split(os.sep)[-1]
             # type=image/[png|jpeg|jpg|webp|gif]
-            # type_ = 'image/{}'.format(file_path_.split('.')[-1].lower())
-            type_ = 'image/jpeg'
+            type_ = 'image/{}'.format(save_file_path_.split('.')[-1].lower())
+            # type_ = 'image/jpeg'
             files = {'file': (file_name_, open(save_file_path_, 'rb'), type_)}
             response = requests.post(upload_url, headers=headers, data=payload_, files=files)
             os.remove(file_path_)
-            os.remove(save_file_path_)
+            try:
+                os.remove(save_file_path_)
+            except Exception as e_:
+                logger.info(f'[DIFY] remove {save_file_path_} failed. err: {e_}')
         if response.status_code != 200 and response.status_code != 201:
             error_info = f"[DIFY] response text={response.text} status_code={response.status_code}"
             logger.warn(error_info)
