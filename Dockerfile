@@ -14,7 +14,7 @@ ENV BUILD_PREFIX=/app
 ADD . ${BUILD_PREFIX}
 
 RUN apt-get update \
-    &&apt-get install -y --no-install-recommends bash ffmpeg espeak libavcodec-extra\
+    &&apt-get install -y --no-install-recommends bash ffmpeg espeak libavcodec-extra git\
     && cd ${BUILD_PREFIX} \
     && /usr/local/bin/python -m pip install --no-cache --upgrade pip \
     && pip install --no-cache -r requirements.txt \
