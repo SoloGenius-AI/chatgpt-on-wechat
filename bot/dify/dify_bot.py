@@ -180,10 +180,10 @@ class DifyBot(Bot):
             session.set_conversation_id(rsp_data.get('conversation_id', ''))
 
         if self.ask_image:
-            self.last_image_session_id = rsp_data.get('conversation_id', '')
+            self.last_image_session_id = rsp_data.get('conversation_id', '') if rsp_data.get('conversation_id', '') != self.last_not_image_session_id else self.last_image_session_id
             logger.info(f'[DIFY] set {self.last_image_session_id=}')
         else:
-            self.last_not_image_session_id = rsp_data.get('conversation_id', '')
+            self.last_not_image_session_id = rsp_data.get('conversation_id', '') if rsp_data.get('conversation_id', '') != self.last_image_session_id else self.last_not_image_session_id
             logger.info(f'[DIFY] set {self.last_not_image_session_id=}')
         return reply, None
 
