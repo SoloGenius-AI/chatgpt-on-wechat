@@ -97,6 +97,8 @@ class DifyBot(Bot):
         chat_url = f'{base_url}/chat-messages'
         headers = self._get_headers()
         response_mode = 'blocking'
+        logger.info(f'{self.last_image_session_id=}')
+        logger.info(f'{self.last_not_image_session_id=}')
         payload = self._get_payload(query, session, response_mode)
         if query == '开启对话' and not self.ask_image and self.image_id is not None:
             self.last_not_image_session_id = session.get_session_id()
@@ -179,10 +181,10 @@ class DifyBot(Bot):
 
         if self.ask_image:
             self.last_image_session_id = rsp_data.get('conversation_id', '')
-            logger.info(f'{self.last_image_session_id=}')
+            logger.info(f'[DIFY] set {self.last_image_session_id=}')
         else:
             self.last_not_image_session_id = rsp_data.get('conversation_id', '')
-            logger.info(f'{self.last_not_image_session_id=}')
+            logger.info(f'[DIFY] set {self.last_not_image_session_id=}')
         return reply, None
 
     def _handle_agent(self, query: str, session: DifySession, context: Context):
