@@ -119,6 +119,7 @@ class DifyBot(Bot):
             logger.info(f'[DIFY] send {payload=}')
             response = requests.post(chat_url, headers=headers, json=payload)
         else:
+            session.set_conversation_id('')
             upload_url = f'{base_url}/files/upload'
             payload_ = {'user': payload['user']}
             context.get("msg").prepare()
@@ -173,8 +174,13 @@ class DifyBot(Bot):
             reply = Reply(ReplyType.TEXT, '图像读取成功，输入「开启对话」对图像进行相关对话，输入「结束对话」以退出。\n对话仅保留最近的一次的图像。')
             return reply, None
         # 设置dify conversation_id, 依靠dify管理上下文
-        if session.get_conversation_id() == '':
-            session.set_conversation_id(rsp_data['conversation_id'])
+        if session.get_conversation_id() == '' or session.get_session_id().startswith('@'):
+            session.set_conversation_id(rsp_data.get('conversation_id', ''))
+
+        if self.ask_image:
+            self.last_image_session_id = rsp_data.get('conversation_id', '')
+        else:
+            self.last_not_image_session_id = rsp_data.get('conversation_id', '')
         return reply, None
 
     def _handle_agent(self, query: str, session: DifySession, context: Context):
