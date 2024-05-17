@@ -50,7 +50,7 @@ class DifyBot(Bot):
 
             reply, err = self._reply(query, session, context)
             if err != None:
-                reply = Reply(ReplyType.TEXT, "我暂时遇到了一些问题，请您稍后重试~")
+                reply = Reply(ReplyType.ERROR, "我暂时遇到了一些问题，请您稍后重试~")
             return reply
         else:
             reply = Reply(ReplyType.ERROR, "Bot不支持处理{}类型的消息".format(context.type))
@@ -104,11 +104,11 @@ class DifyBot(Bot):
             # self.last_not_image_session_id = session.get_session_id()
             session.set_conversation_id(self.last_image_session_id)
             self.ask_image = True
-            reply = Reply(ReplyType.TEXT, '开启成功，接下来可以进行图像对话了。输入「结束对话」以退出图像对话。')
+            reply = Reply(ReplyType.INFO, '开启成功，接下来可以进行图像对话了。输入「结束对话」以退出图像对话。')
             return reply, None
         elif query == '结束对话' and self.ask_image:
             self.ask_image = False
-            reply = Reply(ReplyType.TEXT, '结束图像对话成功。')
+            reply = Reply(ReplyType.INFO, '结束图像对话成功。')
             # self.last_image_session_id = session.get_session_id()
             session.set_conversation_id(self.last_not_image_session_id)
             return reply, None
@@ -170,10 +170,18 @@ class DifyBot(Bot):
         # TODO: 处理返回的图片文件
         # {"answer": "![image](/files/tools/dbf9cd7c-2110-4383-9ba8-50d9fd1a4815.png?timestamp=1713970391&nonce=0d5badf2e39466042113a4ba9fd9bf83&sign=OVmdCxCEuEYwc9add3YNFFdUpn4VdFKgl84Cg54iLnU=)"}
         if context.type != ContextType.IMAGE:
-            reply = Reply(ReplyType.TEXT, rsp_data['answer'])
+            add_info_dict = {}
+            try:
+                add_info_dict['model'] = 'dify'
+                add_info_dict['total_tokens'] = rsp_data['metadata']['usage']['total_tokens']
+                add_info_dict['prompt_tokens'] = rsp_data['metadata']['usage']['prompt_tokens']
+                add_info_dict['completion_tokens'] = rsp_data['metadata']['usage']['completion_tokens']
+            except Exception as e_:
+                logger.info(f'[DIFY] reply添加add_info_dict异常: {e_}')
+            reply = Reply(ReplyType.TEXT, rsp_data['answer'], add_info_dict)
         else:
             self.image_id = rsp_data.get('id', None)
-            reply = Reply(ReplyType.TEXT, '图像读取成功，输入「开启对话」对图像进行相关对话，输入「结束对话」以退出。\n对话仅保留最近的一次的图像。')
+            reply = Reply(ReplyType.INFO, '图像读取成功，输入「开启对话」对图像进行相关对话，输入「结束对话」以退出。\n对话仅保留最近的一次的图像。')
             return reply, None
         # 设置dify conversation_id, 依靠dify管理上下文
         if session.get_conversation_id() == '' or session.get_session_id().startswith('@'):

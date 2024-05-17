@@ -103,10 +103,10 @@ class logpp(Plugin):
                 user = e_context['context'].kwargs['msg'].from_user_nickname
             reply = e_context['reply']
             addition_info = reply.addition_info
-            model_name = addition_info['model']
-            total_tokens = addition_info['total_tokens']
-            prompt_tokens = addition_info['prompt_tokens']
-            completion_tokens = addition_info['completion_tokens']
+            model_name = addition_info.get('model', '') if addition_info is not None else ''
+            total_tokens = addition_info.get('total_tokens', '') if addition_info is not None else ''
+            prompt_tokens = addition_info.get('prompt_tokens', '') if addition_info is not None else ''
+            completion_tokens = addition_info.get('completion_tokens', '') if addition_info is not None else ''
 
             if e_context["context"].type == ContextType.TEXT:
                 # "时间", "用户名", "群聊", "输入token数", "输出token数", "实际请求内容", "输出内容"
