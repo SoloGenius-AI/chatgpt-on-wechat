@@ -1,26 +1,33 @@
-# FROM ghcr.io/zhayujie/chatgpt-on-wechat:latest
-#
-# ENTRYPOINT ["/entrypoint.sh"]
-
 FROM python:3.10-slim-bullseye
 
 LABEL maintainer="foo@bar.com"
 ARG TZ='Asia/Shanghai'
 
 RUN echo /etc/apt/sources.list
-# RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
+RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
+
+# Set the build prefix and repository URL
 ENV BUILD_PREFIX=/app
+ENV REPO_URL=https://github.com/SoloGenius-AI/chatgpt-on-wechat.git
 
-ADD . ${BUILD_PREFIX}
-
+# Update package lists and install required packages
 RUN apt-get update \
-    &&apt-get install -y --no-install-recommends bash ffmpeg espeak libavcodec-extra git\
-    && cd ${BUILD_PREFIX} \
+    &&apt-get install -y --no-install-recommends git
+
+# Clone the repository
+RUN git clone ${REPO_URL} ${BUILD_PREFIX}
+RUN cp ${BUILD_PREFIX}/config-template.json ${BUILD_PREFIX}/config.json
+
+RUN apt-get install -y --no-install-recommends bash ffmpeg espeak libavcodec-extra
+
+# Install Python dependencies
+RUN cd ${BUILD_PREFIX} \
     && /usr/local/bin/python -m pip install --no-cache --upgrade pip \
-    && pip install --no-cache -r requirements.txt \
-    && pip install --no-cache -r requirements-optional.txt \
-    && pip install azure-cognitiveservices-speech
+    && pip install --no-cache -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/\
+    && pip install --no-cache -r requirements-optional.txt -i https://mirrors.aliyun.com/pypi/simple/\
+    && pip install azure-cognitiveservices-speech -i https://mirrors.aliyun.com/pypi/simple/
 
 WORKDIR ${BUILD_PREFIX}
 
-CMD python app.py
+# Pull the latest code when the container starts
+CMD git pull && python app.py
