@@ -69,6 +69,10 @@ def create_bot(bot_type):
         from bot.dify.dify_bot import DifyBot
         return DifyBot()
 
+    elif bot_type == const.DIFY_SIG:
+        from bot.dify.dify_img_sig_chat_bot import DifyBot
+        return DifyBot()
+
     elif bot_type == const.COZE:
         from bot.bytedance.bytedance_coze_bot import ByteDanceCozeBot
         return ByteDanceCozeBot()

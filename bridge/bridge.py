@@ -42,6 +42,8 @@ class Bridge(object):
             self.btype["chat"] = const.CLAUDEAPI
         if model_type in [const.DIFY]:
             self.btype["chat"] = const.DIFY
+        if model_type in [const.DIFY_SIG]:
+            self.btype["chat"] = const.DIFY_SIG
         if model_type in [const.COZE]:
             self.btype["chat"] = const.COZE
 
