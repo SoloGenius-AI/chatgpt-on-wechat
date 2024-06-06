@@ -149,6 +149,12 @@ class DifyBot(Bot):
         if response.status_code != 200 and response.status_code != 201:
             error_info = f"[DIFY] response text={response.text} status_code={response.status_code}"
             logger.warn(error_info)
+            if 'invalid_param' in f'{response.text}' and 'Invalid upload file' in f'{response.text}':
+                self.ask_image = False
+                self.image_id = None
+                reply = Reply(ReplyType.INFO, '图像可能超时，清除并结束此次图像对话。')
+                session.set_conversation_id(self.last_not_image_session_id)
+                return reply, None
             return None, error_info
 
         # response:
