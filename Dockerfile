@@ -17,6 +17,7 @@ RUN apt-get update \
 # Clone the repository
 RUN git clone ${REPO_URL} ${BUILD_PREFIX}
 RUN cp ${BUILD_PREFIX}/config-template.json ${BUILD_PREFIX}/config.json
+RUN git config --global pull.rebase false
 
 RUN apt-get install -y --no-install-recommends bash ffmpeg espeak libavcodec-extra
 
