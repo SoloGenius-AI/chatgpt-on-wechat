@@ -65,7 +65,10 @@ class LinkAI(Plugin):
                 USER_FILE_MAP[_find_user_id(context) + "-sum_id"] = res.get("summary_id")
                 summary_text += "\n\n💬 发送 \"开启对话\" 可以开启与文件内容的对话"
             _set_reply_text(summary_text, e_context, level=ReplyType.TEXT)
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                logger.info(f'[LINKAI] remove file: {e}')
             return
 
         if (context.type == ContextType.SHARING and self._is_summary_open(context)) or \
