@@ -46,12 +46,12 @@ class Bridge(object):
             self.btype["chat"] = const.DIFY_SIG
         if model_type in [const.COZE]:
             self.btype["chat"] = const.COZE
-
         if model_type in ["claude"]:
             self.btype["chat"] = const.CLAUDEAI
-
         if model_type in ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"]:
             self.btype["chat"] = const.MOONSHOT
+        if model_type in ["abab6.5-chat"]:
+            self.btype["chat"] = const.MiniMax
 
         if conf().get("use_linkai") and conf().get("linkai_api_key"):
             self.btype["chat"] = const.LINKAI
