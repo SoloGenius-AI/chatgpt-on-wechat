@@ -79,9 +79,10 @@ class WechatComServiceChannel(ChatChannel):
                         time.sleep(0.5)  # 休眠0.5秒，防止发送过快乱序
             # self.send_text_message(external_userid, open_kfid,
             #                        content, msgid=None)
-            content = reply.content
-            self.send_text_message(external_userid=external_userid, open_kfid=open_kfid, content=content)
-            logger.info("[wechatcs] Do send text to {}: {}".format(receiver, reply_text))
+            else:
+                content = reply.content
+                self.send_text_message(external_userid=external_userid, open_kfid=open_kfid, content=content)
+                logger.info("[wechatcs] Do send text to {}: {}".format(receiver, reply_text))
         elif reply.type == ReplyType.VOICE:
             try:
                 media_ids = []
