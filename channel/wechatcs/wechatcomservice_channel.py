@@ -73,6 +73,10 @@ class WechatComServiceChannel(ChatChannel):
             texts = split_string_by_utf8_length(reply_text, MAX_UTF8_LEN)
             if len(texts) > 1:
                 logger.info("[wechatcs] text too long, split into {} parts".format(len(texts)))
+                for i, text in enumerate(texts):
+                    self.send_text_message(external_userid=external_userid, open_kfid=open_kfid, content=text)
+                    if i != len(texts) - 1:
+                        time.sleep(0.5)  # 休眠0.5秒，防止发送过快乱序
             # self.send_text_message(external_userid, open_kfid,
             #                        content, msgid=None)
             content = reply.content
