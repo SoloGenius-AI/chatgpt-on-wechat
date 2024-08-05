@@ -13,14 +13,16 @@ class WechatComServiceMessage(ChatMessage):
         try:
             self.external_userid = msg['external_userid']
         except Exception as e_:
-            self.external_userid = msg['event']['external_userid']
+            raise e_
+            # self.external_userid = msg['event']['external_userid']
         self.create_time = msg['send_time']
         self.origin = msg['origin']
         self.msgtype = msg['msgtype']
         try:
             self.open_kfid = msg['open_kfid']
         except Exception as e_:
-            self.open_kfid = msg['event']['open_kfid']
+            raise e_
+            # self.open_kfid = msg['event']['open_kfid']
         if self.msgtype == "text":
             self.content = msg['text']['content']
             self.ctype = ContextType.TEXT
