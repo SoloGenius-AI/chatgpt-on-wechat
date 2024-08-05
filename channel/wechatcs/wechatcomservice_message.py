@@ -10,12 +10,17 @@ class WechatComServiceMessage(ChatMessage):
     def __init__(self, msg, client: WeChatClient = None, is_group=False):
         self.is_group = is_group
         self.msg_id = msg['msgid']
-        self.external_userid = msg.get('external_userid', msg['event']['external_userid'])
+        try:
+            self.external_userid = msg['external_userid']
+        except Exception as e_:
+            self.external_userid = msg['event']['external_userid']
         self.create_time = msg['send_time']
         self.origin = msg['origin']
         self.msgtype = msg['msgtype']
-        self.open_kfid = msg.get('open_kfid', msg['event']['open_kfid'])
-
+        try:
+            self.open_kfid = msg['open_kfid']
+        except Exception as e_:
+            self.open_kfid = msg['event']['open_kfid']
         if self.msgtype == "text":
             self.content = msg['text']['content']
             self.ctype = ContextType.TEXT
