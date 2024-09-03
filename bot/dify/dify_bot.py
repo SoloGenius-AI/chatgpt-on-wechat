@@ -105,6 +105,7 @@ class DifyBot(Bot):
         if query == self.start_flag and not self.ask_image and self.image_id is not None:
             # self.last_not_image_session_id = session.get_session_id()
             # session.set_conversation_id(self.last_image_session_id)
+            session.set_conversation_id('')
             self.ask_image = True
             reply = Reply(ReplyType.INFO, f'开启成功，接下来可以进行图像对话了。输入「{self.finish_flag}」以退出图像对话。')
             return reply, None
@@ -113,6 +114,7 @@ class DifyBot(Bot):
             reply = Reply(ReplyType.INFO, '结束图像对话成功。')
             # self.last_image_session_id = session.get_session_id()
             # session.set_conversation_id(self.last_not_image_session_id)
+            session.set_conversation_id('')
             return reply, None
         elif context.type != ContextType.IMAGE:
             if self.ask_image:
