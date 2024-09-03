@@ -161,7 +161,9 @@ class DifyBot(Bot):
                 return reply, None
             if response.status_code == 404:
                 session.set_conversation_id('')
-                reply = Reply(ReplyType.INFO, '无法继续对话，已重置')
+                self.last_not_image_session_id = ''
+                self.last_image_session_id = ''
+                reply = Reply(ReplyType.INFO, '或因对话超时无法继续，已重置。')
                 return reply, None
             return None, error_info
 
