@@ -189,7 +189,7 @@ class DifyBot(Bot):
             reply = Reply(ReplyType.TEXT, rsp_data['answer'], add_info_dict)
         else:
             self.image_id = rsp_data.get('id', None)
-            reply = Reply(ReplyType.INFO, f'图像读取成功，输入「{self.finish_flag}」对图像进行相关对话，输入「{self.finish_flag}」以退出。\n对话仅保留最近的一次的图像。')
+            reply = Reply(ReplyType.INFO, f'图像读取成功，输入「{self.start_flag}」对图像进行相关对话，输入「{self.finish_flag}」以退出。\n对话仅保留最近的一次的图像。')
             return reply, None
         # 设置dify conversation_id, 依靠dify管理上下文
         if session.get_conversation_id() == '' or session.get_session_id().startswith('@'):
