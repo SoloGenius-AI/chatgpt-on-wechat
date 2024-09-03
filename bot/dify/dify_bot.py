@@ -163,7 +163,7 @@ class DifyBot(Bot):
                 session.set_conversation_id('')
                 self.last_not_image_session_id = ''
                 self.last_image_session_id = ''
-                reply = Reply(ReplyType.INFO, '或因对话超时无法继续，已清除对话并重置。')
+                reply = Reply(ReplyType.INFO, '或因恢复上个对话超时无法继续，已清除对话并重置。')
                 return reply, None
             return None, error_info
 
