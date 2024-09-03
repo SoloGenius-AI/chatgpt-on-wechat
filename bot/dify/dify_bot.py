@@ -104,8 +104,8 @@ class DifyBot(Bot):
         payload = self._get_payload(query, session, response_mode)
         if query == self.start_flag and not self.ask_image and self.image_id is not None:
             # self.last_not_image_session_id = session.get_session_id()
-            # session.set_conversation_id(self.last_image_session_id)
-            session.set_conversation_id('')
+            session.set_conversation_id(self.last_image_session_id)
+            # session.set_conversation_id('')
             self.ask_image = True
             reply = Reply(ReplyType.INFO, f'开启成功，接下来可以进行图像对话了。输入「{self.finish_flag}」以退出图像对话。')
             return reply, None
@@ -113,8 +113,8 @@ class DifyBot(Bot):
             self.ask_image = False
             reply = Reply(ReplyType.INFO, '结束图像对话成功。')
             # self.last_image_session_id = session.get_session_id()
-            # session.set_conversation_id(self.last_not_image_session_id)
-            session.set_conversation_id('')
+            session.set_conversation_id(self.last_not_image_session_id)
+            # session.set_conversation_id('')
             return reply, None
         elif context.type != ContextType.IMAGE:
             if self.ask_image:
@@ -125,7 +125,7 @@ class DifyBot(Bot):
             logger.info(f'[DIFY] send {payload=}')
             response = requests.post(chat_url, headers=headers, json=payload)
         else:
-            # session.set_conversation_id('')
+            session.set_conversation_id('')
             upload_url = f'{base_url}/files/upload'
             payload_ = {'user': payload['user']}
             context.get("msg").prepare()
@@ -157,7 +157,11 @@ class DifyBot(Bot):
                 self.ask_image = False
                 self.image_id = None
                 reply = Reply(ReplyType.INFO, '图像可能超时，清除并结束此次图像对话。')
-                # session.set_conversation_id(self.last_not_image_session_id)
+                session.set_conversation_id(self.last_not_image_session_id)
+                return reply, None
+            if response.status_code == 404:
+                session.set_conversation_id('')
+                reply = Reply(ReplyType.INFO, '无法继续对话，已重置')
                 return reply, None
             return None, error_info
 
